@@ -17,14 +17,26 @@ import java.util.function.Consumer;
 public class BallSeq implements Cloneable
 {
 	// TODO: Declare the private static Node class.
+	private static class Node{
+		int data;
+		Node next;		
 	// It should have a constructor but no methods.
 	// The fields of Node should have "default" access (neither public, nor private)
 	// and should not start with underscores.
-
+	public Node(int data){
+		
+		this.data = data;
+		this.next = null;
+	}	
 	
 	// TODO: Declare the private fields of BallSeq needed for sequences
 	// (in the textbook, page 233 (3rd ed. 226), five are recommended, 
 	//  you declare all five.)
+	private int manyNodes;
+	private Node head;
+	private Node tail;
+	private Node cursor;
+	private Node precursor;
 	
 	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
 	
