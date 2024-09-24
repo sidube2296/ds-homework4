@@ -18,16 +18,17 @@ public class BallSeq implements Cloneable
 {
 	// TODO: Declare the private static Node class.
 	private static class Node{
-		int data;
+		Ball data;
 		Node next;		
-	// It should have a constructor but no methods.
-	// The fields of Node should have "default" access (neither public, nor private)
-	// and should not start with underscores.
-	public Node(int data){
-		
+		// It should have a constructor but no methods.
+		// The fields of Node should have "default" access (neither public, nor private)
+		// and should not start with underscores.
+		public Node(Ball data,Node next){
 		this.data = data;
 		this.next = null;
-	}	
+	}
+	}
+
 	
 	// TODO: Declare the private fields of BallSeq needed for sequences
 	// (in the textbook, page 233 (3rd ed. 226), five are recommended, 
@@ -37,6 +38,7 @@ public class BallSeq implements Cloneable
 	private Node tail;
 	private Node cursor;
 	private Node precursor;
+	
 	
 	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
 	
@@ -112,6 +114,7 @@ public class BallSeq implements Cloneable
 		assert wellFormed() : "invariant wrong at start of size()";
 		// TODO: Implemented by student.
 		// This method shouldn't modify any fields, hence no assertion at end
+		return manyNodes;
 	}
 	
 	/**
@@ -142,6 +145,7 @@ public class BallSeq implements Cloneable
 		assert wellFormed() : "invariant wrong at start of getCurrent()";
 		// TODO: Implemented by student.
 		// This method shouldn't modify any fields, hence no assertion at end
+		return false;
 	}
 
 	/**
@@ -160,6 +164,7 @@ public class BallSeq implements Cloneable
 		assert wellFormed() : "invariant wrong at start of getCurrent()";
 		// TODO: Implemented by student.
 		// This method shouldn't modify any fields, hence no assertion at end
+		return null;
 	}
 
 	/**
