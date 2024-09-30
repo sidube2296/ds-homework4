@@ -1,5 +1,4 @@
-
-	import junit.framework.TestCase;
+import junit.framework.TestCase;
 
 	public class TestGen extends TestCase {
 		public void test() {
