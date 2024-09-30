@@ -453,7 +453,50 @@ public class BallSeq implements Cloneable
 		// Now do the hard work of cloning the list.
 		// See pp 200-204, 235 (3rd ed. pp. 193-197, 228)
 		// Setting precursor, cursor and tail correctly is tricky.
-		// If the list is empty, set all to null
+		// If the list is empty, setting all to null
+		if (head == null) {
+			// Empty list case
+			result.head = result.tail = result.cursor = result.precursor = null;
+			result.manyNodes = 0;
+		} else {
+			// Non-empty list case
+			Node originalNode = head;
+			Node newHead = new Node(originalNode.data, null);
+			result.head = newHead;
+
+			Node lastNode = newHead;
+			Node clonedCursor = null;
+			Node clonedPrecursor = null;
+
+			if (cursor == originalNode) {
+				clonedCursor = newHead;
+			}
+			if (precursor == originalNode) {
+				clonedPrecursor = newHead;
+			}
+
+			// Traversing and cloning the rest of the list
+			while (originalNode.next != null) {
+				originalNode = originalNode.next;
+				Node newNode = new Node(originalNode.data, null);
+				lastNode.next = newNode; // Linking the new node to the previous one
+				lastNode = newNode;
+
+				// Setting cursor and precursor in the cloned list as needed
+				if (originalNode == cursor) {
+					clonedCursor = newNode;
+				}
+				if (originalNode == precursor) {
+					clonedPrecursor = newNode;
+				}
+			}
+
+			// Updating the result's fields
+			result.tail = lastNode;
+			result.cursor = clonedCursor;
+			result.precursor = clonedPrecursor;
+			result.manyNodes = manyNodes;
+		}
 		
 		assert wellFormed() : "Invariant wrong at end of clone()";
 		assert result.wellFormed() : "Invariant wrong for result of clone()";
