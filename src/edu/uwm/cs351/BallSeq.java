@@ -6,14 +6,14 @@ package edu.uwm.cs351;
 import java.util.function.Consumer;
 
 
-/******************************************************************************
+/****
  * This class is a homework assignment;
  * A BallSeq is a collection of Ball objects.
  * The sequence can have a special "current element," which is specified and 
  * accessed through four methods
  * (start, getCurrent, advance and isCurrent).
  *
- ******************************************************************************/
+ ****/
 public class BallSeq implements Cloneable
 {
 	// TODO: Declare the private static Node class.
@@ -24,12 +24,12 @@ public class BallSeq implements Cloneable
 		// The fields of Node should have "default" access (neither public, nor private)
 		// and should not start with underscores.
 		public Node(Ball data,Node next){
-		this.data = data;
-		this.next = null;
-	}
+			this.data = data;
+			this.next = next;
+		}
 	}
 
-	
+
 	// TODO: Declare the private fields of BallSeq needed for sequences
 	// (in the textbook, page 233 (3rd ed. 226), five are recommended, 
 	//  you declare all five.)
@@ -38,10 +38,10 @@ public class BallSeq implements Cloneable
 	private Node tail;
 	private Node cursor;
 	private Node precursor;
-	
-	
+
+
 	private static Consumer<String> reporter = (s) -> System.out.println("Invariant error: "+ s);
-	
+
 	private boolean report(String error) {
 		reporter.accept(error);
 		return false;
@@ -59,6 +59,12 @@ public class BallSeq implements Cloneable
 		// 1. The list must not include a cycle.
 		// We do the first one for you:
 		// check that list is not cyclic
+		// This is the invariant of the data structure according to the
+		// design in the textbook on pages 233-4 (3rd ed. 226-7)
+		// Implementation:
+		// Do multiple checks: each time returning false if a problem is found.
+		// (Use "report" to give a descriptive report while returning false.)
+		// Implement remaining conditions.
 		if(head != null) {
 			// This check uses the "tortoise and hare" algorithm attributed to Floyd.
 			Node fast = head.next;
@@ -69,16 +75,19 @@ public class BallSeq implements Cloneable
 		}
 		// 2. "tail" must point to the last node in the list starting at "head".
 		//In particular, if the list is empty, "tail" must be null.
-		if(head == null && tail!= null) { return report("Tail is not null when the list is empty.");}
-		if(head!=null) {
-			Node current = head;
-			while(current.next!=null) {
-				current=current.next;
+		if (head == null) {
+			if (tail != null) {
+				return report("Tail must be null if head is null.");
 			}
-			if(current!=tail) {
+		} else {
+			Node current = head;
+			while (current.next != null) {
+				current = current.next;
+			}
+			if (current != tail) {
 				return report("Tail does not point to the last node.");
 			}
-		}	
+		}
 		// 3. "manyNodes" is number of nodes in list
 		int count = 0;
 		for (Node p=head;p!=null;p=p.next) {
@@ -86,40 +95,34 @@ public class BallSeq implements Cloneable
 		}
 		if(manyNodes!= count ) {return report("Manynodes is not equal to number of nodes in list");}
 		// 4. "precursor" is either null or points to a node in the list, other than the tail.
-		if(precursor !=null) {
-			Node current = head;
-        	boolean found = false;
-        	while (current != null && current != tail) {
-        		if (current == precursor) {
-        			found = true;
-        			break;
-            }
-            current = current.next;
-        }
-        if (!found) {
-            return report("Precursor is not null and does not point to a valid node in the list.");
-        }}
+		if (precursor != null) {
+			// Check if precursor points to a node in the list and that it's not the tail.
+			boolean found = false;
+			for (Node p = head; p != null; p = p.next) {
+				if (p == precursor) {
+					found = true;
+					break;
+				}	
+			}
+			if (!found) {
+				return report("Precursor does not point to a valid node in the list.");
+			}
+			if (precursor == tail) {
+				return report("Precursor must not point to the tail.");
+			}
+		}
 		// 5. "cursor" is the node after "precursor" (if "precursor" is not null),
 		//    or is either null or the head node (otherwise).
-		if(precursor!=null && precursor.next!=cursor) {return report("Cursor must be the node after precursor.");}
-		if(precursor==null && cursor!=head && cursor!=null) {return report("Precursor is not pointing to the cursor or precursor is null");}
-		// This is the invariant of the data structure according to the
-		// design in the textbook on pages 233-4 (3rd ed. 226-7)
-		
-		// Implementation:
-		// Do multiple checks: each time returning false if a problem is found.
-		// (Use "report" to give a descriptive report while returning false.)
-		
-		
-		
-		// Implement remaining conditions.
-		
+		if ((precursor != null && precursor.next != cursor) ||
+				(precursor == null && cursor != head && cursor != null)) {
+			return report("Cursor must be correctly related to precursor or head.");
+		}
 		// If no problems found, then return true:
 		return true;
 	}
 
 	private BallSeq(boolean doNotUse) {} // only for purposes of testing, do not change
-	
+
 	/**
 	 * Create an empty sequence
 	 * @param - none
@@ -134,7 +137,7 @@ public class BallSeq implements Cloneable
 		tail=null;
 		cursor=null;
 		precursor=null;
-		assert wellFormed() : "invariant failed in constructor";
+		assert wellFormed() : "Invariant failed in constructor";
 	}
 
 	/// Simple sequence methods
@@ -147,12 +150,12 @@ public class BallSeq implements Cloneable
 	 **/ 
 	public int size( )
 	{
-		assert wellFormed() : "invariant wrong at start of size()";
+		assert wellFormed() : "Invariant wrong at start of size()";
 		// TODO: Implemented by student.
 		// This method shouldn't modify any fields, hence no assertion at end
 		return manyNodes;
 	}
-	
+
 	/**
 	 * Set the current element at the front of this sequence.
 	 * @param - none
@@ -163,11 +166,11 @@ public class BallSeq implements Cloneable
 	 **/ 
 	public void start( )
 	{
-		assert wellFormed() : "invariant wrong at start of start()";
+		assert wellFormed() : "Invariant wrong at start of start()";
 		// TODO: Implemented by student.
-		head=cursor;
+		cursor=head;
 		precursor=null;
-		assert wellFormed() : "invariant wrong at end of start()";
+		assert wellFormed() : "Invariant wrong at end of start()";
 	}
 
 	/**
@@ -180,7 +183,7 @@ public class BallSeq implements Cloneable
 	 **/
 	public boolean isCurrent( )
 	{
-		assert wellFormed() : "invariant wrong at start of getCurrent()";
+		assert wellFormed() : "Invariant wrong at start of getCurrent()";
 		// TODO: Implemented by student.
 		// This method shouldn't modify any fields, hence no assertion at end
 		return cursor!=null;
@@ -199,14 +202,11 @@ public class BallSeq implements Cloneable
 	 **/
 	public Ball getCurrent( )
 	{
-		assert wellFormed() : "invariant wrong at start of getCurrent()";
+		assert wellFormed() : "Invariant wrong at start of getCurrent()";
 		// TODO: Implemented by student.
-		if (isCurrent()) {
-			return cursor.data;
-		}
-		// This method shouldn't modify any fields, hence no assertion at end
-		else {throw new IllegalStateException("No current element.");}
-		
+		if (!isCurrent()) throw new IllegalStateException("No current element.");
+		return cursor.data;
+
 	}
 
 	/**
@@ -226,13 +226,21 @@ public class BallSeq implements Cloneable
 	 **/
 	public void advance( )
 	{
-		assert wellFormed() : "invariant wrong at start of advance()";
+		assert wellFormed() : "Invariant wrong at start of advance()";
 		// TODO: Implemented by student.
-		if(isCurrent()) {
-			
+
+		if (!isCurrent()) throw new IllegalStateException("No current element.");
+
+		precursor = cursor;
+		cursor = cursor.next;
+
+		// Cursor points to null if the end of the list is reached
+		if (cursor == null) {
+			precursor = null;
 		}
-		else {throw new IllegalStateException("No current element.");}
-		assert wellFormed() : "invariant wrong at end of advance()";
+
+		assert wellFormed() : "Invariant wrong at end of advance()";
+
 	}
 
 	/**
@@ -251,20 +259,43 @@ public class BallSeq implements Cloneable
 	 **/
 	public void removeCurrent( )
 	{
-		assert wellFormed() : "invariant wrong at start of removeCurrent()";
+		assert wellFormed() : "Invariant wrong at start of removeCurrent()";
 		// TODO: Implemented by student.
 		// See textbook pp.176-78, 181-184
-		if(isCurrent()){
-			for(Node current=head;current!=null;current=current.next){
-				if(current==cursor) {
-					cursor=null;
-					precursor.next=cursor.next;
-					break;
-				}
+		if (!isCurrent()) {
+			throw new IllegalStateException("No current element.");
+		}
+
+		if (cursor == head) {
+			// Remove the head element
+			head = head.next;
+			if (cursor == tail) {
+				// Update tail to null,If we removed the only element.
+				tail = null;
+			}
+			cursor = head; // Move cursor to the new head that could be null
+			precursor = null; // Since we're at the head, precursor should be null
+		} else {
+			// Removing a middle or last element
+			precursor.next = cursor.next;
+			if (cursor == tail) {
+				// Removing the last element and updating the tail to precursor
+				tail = precursor;
+				cursor = null; // No current element after removing the last element
+			} else {
+				// Otherwise, move cursor to the next element
+				cursor = precursor.next;
 			}
 		}
-		else {throw new IllegalStateException("No current element.");}
-		assert wellFormed() : "invariant wrong at end of removeCurrent()";
+
+		// Update the number of nodes after removing the element
+		manyNodes--;
+
+		// Ensuring that precursor does not point to the tail if the cursor is null after removing
+		if (cursor == null) {
+			precursor = null;
+		}
+		assert wellFormed() : "Invariant wrong at end of removeCurrent()";
 	}
 
 	/**
@@ -284,11 +315,49 @@ public class BallSeq implements Cloneable
 	 **/
 	public void insert(Ball element)
 	{
-		assert wellFormed() : "invariant failed at start of insert";
+		assert wellFormed() : "Invariant failed at start of insert";
 		// TODO: Implemented by student.
-		assert wellFormed() : "invariant failed at end of insert";
+		Node newNode = new Node(element, null);
+
+		if (cursor == null) {
+			// Inserting at the end of the list if no current element
+			if (tail == null) {
+				// If the list is empty, so new node becomes head and tail
+				head = newNode;
+				tail = newNode;
+				precursor = null;
+			} else {
+				//Otherwise, append to the end of the list
+				tail.next = newNode;
+				precursor = tail;
+				tail = newNode;
+			}
+			cursor = newNode;
+		} else {
+			// Inserting before the current element
+			if (cursor == head) {
+				// Inserting at the head of the list
+				newNode.next = head;
+				head = newNode;
+				precursor = null;  // Setting precursor to null as new node is the head
+			} else {
+				// Insert before the current element in the middle of the list
+				newNode.next = cursor;
+				precursor.next = newNode; // Precursor should correctly point to the new node
+			}
+			cursor = newNode;  // The new node becomes the current element
+		}
+
+		// Updating the number of nodes after inserting the element
+		manyNodes++;
+
+		// Ensuring the tail is correctly updated if the new node is the last one
+		if (cursor.next == null) {
+			tail = cursor;
+		}
+		assert wellFormed() : "Invariant failed at end of insert";
 	}
-	
+
 
 	/**
 	 * Place the contents of another sequence (which may be the
@@ -307,9 +376,46 @@ public class BallSeq implements Cloneable
 	 *   Indicates insufficient memory to increase the size of this sequence.
 	 **/
 	public void insertAll(BallSeq addend) {
-		assert wellFormed() : "invariant failed at start of addAll";
+		assert wellFormed() : "Invariant failed at start of insertAll";
 		// TODO: Implement this code.
-		assert wellFormed() : "invariant failed at end of addAll";	
+		if (addend == null) {
+			throw new NullPointerException("The addend cannot be null.");
+		}
+
+		if (addend.manyNodes == 0) {
+			return; 
+		}
+
+		BallSeq addendClone = (addend == this) ? addend.clone() : addend.clone();
+		Node addendHead = addendClone.head;
+		Node addendTail = addendClone.tail;
+
+		if (cursor == null) {
+			// No current element, append to the end of the list
+			if (tail == null) {
+				head = addendHead;
+				tail = addendTail;
+			} else {
+				tail.next = addendHead;
+				tail = addendTail;
+			}
+			precursor = null; // No valid current element
+		} else {
+			// Insert addend before the current element
+			if (cursor == head) {
+				addendTail.next = head;
+				head = addendHead;
+				precursor = null;
+			} else {
+				addendTail.next = cursor;
+				precursor.next = addendHead;
+			}
+			precursor = addendTail;
+		}
+
+		manyNodes += addendClone.manyNodes;
+
+		assert wellFormed() : "Invariant failed at end of inserAll";	
 	}
 
 
@@ -325,7 +431,7 @@ public class BallSeq implements Cloneable
 	 **/ 
 	public BallSeq clone( )
 	{  	 
-		assert wellFormed() : "invariant wrong at start of clone()";
+		assert wellFormed() : "Invariant wrong at start of clone()";
 
 		BallSeq result;
 
@@ -347,13 +453,14 @@ public class BallSeq implements Cloneable
 		// Now do the hard work of cloning the list.
 		// See pp 200-204, 235 (3rd ed. pp. 193-197, 228)
 		// Setting precursor, cursor and tail correctly is tricky.
-
-		assert wellFormed() : "invariant wrong at end of clone()";
-		assert result.wellFormed() : "invariant wrong for result of clone()";
+		// If the list is empty, set all to null
+		
+		assert wellFormed() : "Invariant wrong at end of clone()";
+		assert result.wellFormed() : "Invariant wrong for result of clone()";
 		return result;
 	}
 
-	
+
 	/**
 	 * Used for testing the invariant.  Do not change this code.
 	 */
@@ -395,7 +502,7 @@ public class BallSeq implements Cloneable
 				this.data = b;
 				this.next = n;
 			}
-			
+
 			/**
 			 * Change a node by setting the "next" field.
 			 * @param n new next field, may be null.
@@ -436,4 +543,3 @@ public class BallSeq implements Cloneable
 		}
 	}
 }
-
